@@ -1,0 +1,114 @@
+
+/* Cart Count Badge */
+.cart-count {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    display: none; /* Hidden by default */
+}
+
+/* Cart Page Styles */
+.cart-items-body img {
+    border-radius: 4px;
+}
+
+.cart-items-body .btn-danger {
+    background-color: var(--red);
+    border-color: var(--red);
+}
+
+.cart-items-body .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Empty cart message */
+.text-center.py-4 {
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+  /* =====  add to cart css  ===== */
+
+  :root {
+    --black: #000000;
+    --white: #ffffff;
+    --red: #e5233e;
+    --golden: #debd01;
+    --grey: rgb(41, 35, 35);
+    --text: #cccccc;
+  }
+
+
+  .cart-container {
+    background-color: var(--black);
+    padding: 45px 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .cart-heading {
+    color: var(--red);
+    text-align: center;
+    font-size: 56px;
+    margin-bottom: 8px;
+    margin-top: 18px;
+    text-shadow: 1px 1px 2px var(--text);
+  }
+
+  .cart-table.dataTable {
+    background-color: var(--grey);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+
+
+
+  .cart-table thead th {
+    background-color: var(--black);
+    border: 1px solid var(--golden);
+    color: var(--white);
+    padding: 12px;
+  }
+
+  .cart-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .cart-table tbody td {
+    padding: 10px;
+  }
+
+  .cart-table tfoot {
+    background-color: var(--grey);
+  }
+
+  .cart-checkout-btn {
+    background-color: var(--black);
+    color: var(--white);
+    font-weight: bold;
+    border: 1px solid var(--golden);
+    padding: 12px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    border-radius: 6px;
+  }
+
+  .cart-checkout-btn:hover {
+    transition: all 0.3s ease-in;
+    background-color: var(--golden);
+    color: var(--black);
+  }
+
+
+
+  /* =====  add to cart css  ===== */
+
+
+
+
+

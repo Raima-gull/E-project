@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éclat Jewelry | Luxury Collection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-black: #000000;
+            --color-white: #ffffff;
+            --color-gold: #debd01;
+            --color-dark-gray: rgb(42, 38, 38);
+            --color-text: #cccccc;
+            --transition-default: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-large: 0 15px 40px rgba(0, 0, 0, 0.3);
+            --shadow-small: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --effect-gold-glow: 0 0 10px rgba(222, 189, 1, 0.429);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--color-black);
+            color: var(--color-text);
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar Styles */
+        .app__sidebar {
+            width: 320px;
+            background: var(--color-black);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(222, 189, 1, 0.1);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar__section {
+            margin-bottom: 2.5rem;
+        }
+
+        .sidebar__title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-gold);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(222, 189, 1, 0.3);
+        }
+
+        .sidebar__list {
+            list-style: none;
+        }
+
+        .sidebar__item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.2rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition-default);
+            position: relative;
+        }
+
+        .sidebar__item:hover {
+            background: rgba(222, 189, 1, 0.08);
+        }
+
+        .sidebar__item--active {
+            background: rgba(222, 189, 1, 0.15);
+        }
+
+        .sidebar__icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--color-gold);
+            font-size: 1.1rem;
+        }
+
+        .sidebar__name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .sidebar__count {
+            margin-left: auto;
+            background: rgba(222, 189, 1, 0.2);
+            color: var(--color-gold);
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Main Content Styles */
+        .app__main {
+            flex: 1;
+            padding: 2.5rem;
+        }
+
+        .banner {
+            background: transparent;
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0px 0px 8px 5px #ecc10496;
+        }
+
+        .banner__image {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            object-fit: cover;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .toolbar__count {
+            color: var(--color-text);
+            font-size: 0.95rem;
+        }
+
+        .toolbar__filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter {
+            position: relative;
+        }
+
+        .filter__select {
+            background: var(--color-dark-gray);
+            color: var(--color-white);
+            border: 1px solid rgba(222, 189, 1, 0.3);
+            padding: 0.7rem 1.2rem 0.7rem 2.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            appearance: none;
+            min-width: 180px;
+        }
+
+        .filter__icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gold);
+            pointer-events: none;
+        }
+
+        /* Product Grid Styles */
+        .products {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .product {
+            background: var(--color-dark-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow-small);
+            transition: var(--transition-default);
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards;
+            border: 1px solid rgba(222, 189, 1, 0.1);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product:hover {
+            box-shadow: var(--shadow-large), var(--effect-gold-glow);
+            border-color: rgba(222, 189, 1, 0.3);
+        }
+
+        .product__badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+            background: var(--color-gold);
+            color: var(--color-black);
+            box-shadow: var(--effect-gold-glow);
+        }
+
+        .product__media {
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-black), var(--color-dark-gray));
+        }
+
+        .product__image {
+            max-width: 80%;
+            max-height: 80%;
+            transition: var(--transition-default);
+            filter: drop-shadow(0 0 5px rgba(222, 189, 1, 0.3));
+        }
+
+        .product:hover .product__image {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 10px rgba(222, 189, 1, 0.5));
+        }
+
+        .product__details {
+            padding: 1.5rem;
+        }
+
+        .product__category {
+            color: var(--color-gold);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .product__title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--color-white);
+        }
+
+        .product__description {
+            color: var(--color-text);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product__footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .product__price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-gold);
+        }
+
+        .product__price--original {
+            text-decoration: line-through;
+            color: var(--color-text);
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .product__button {
+            background: transparent;
+            color: var(--color-gold);
+            border: 1px solid var(--color-gold);
+            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-default);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product__button:hover {
+            background: var(--color-gold);
+            color: var(--color-black);
+            box-shadow: var(--effect-gold-glow);
+        }
+
+        .product__button-icon {
+            filter: var(--effect-gold-glow);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: var(--color-text);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .app__sidebar {
+                width: 280px;
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .app__sidebar {
+                width: 240px;
+                padding: 1.2rem 0.8rem;
+            }
+            .sidebar__item {
+                padding: 0.7rem 1rem;
+            }
+            .filter__select {
+                min-width: 150px;
+                padding: 0.6rem 1rem 0.6rem 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                flex-direction: column;
+            }
+            .app__sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1.5rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(222, 189, 1, 0.1);
+            }
+            .app__main {
+                padding: 1.5rem;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .toolbar__filters {
+                width: 100%;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .filter__select {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .app__sidebar {
+                padding: 1rem;
+            }
+            .app__main {
+                padding: 1rem;
+            }
+            .product__media {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="app__sidebar">
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">Shop By Category</h2>
+                <ul class="sidebar__list" id="categoryList"></ul>
+            </div>
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">Product Tier</h2>
+                <ul class="sidebar__list">
+                    <li class="sidebar__item sidebar__item--active" data-filter="all">
+                        <div class="sidebar__icon"><i class="fas fa-star"></i></div>
+                        <span class="sidebar__name">All Jewelry</span>
+                        <span class="sidebar__count" id="allProductsCount"></span>
+                    </li>
+                    <li class="sidebar__item" data-filter="premium">
+                        <div class="sidebar__icon"><i class="fas fa-crown"></i></div>
+                        <span class="sidebar__name">Premium</span>
+                    </li>
+                    <li class="sidebar__item" data-filter="standard">
+                        <div class="sidebar__icon"><i class="fas fa-gem"></i></div>
+                        <span class="sidebar__name">Standard</span>
+                    </li>
+                    <li class="sidebar__item" data-filter="budget">
+                        <div class="sidebar__icon"><i class="fas fa-coins"></i></div>
+                        <span class="sidebar__name">Budget</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        <main class="app__main">
+            <div class="banner" id="categoryBanner">
+                <img src="./Images/allProducts.png" alt="Category Banner" class="banner__image">
+            </div>
+            <div class="toolbar">
+                <div class="toolbar__count" id="resultsCount">Loading jewelry...</div>
+                <div class="toolbar__filters">
+                    <div class="filter">
+                        <i class="fas fa-sort-amount-down filter__icon"></i>
+                        <select class="filter__select" id="sortPrice">
+                            <option value="default">Sort by Price</option>
+                            <option value="low-high">Price: Low to High</option>
+                            <option value="high-low">Price: High to Low</option>
+                        </select>
+                    </div>
+                    <div class="filter">
+                        <i class="fas fa-filter filter__icon"></i>
+                        <select class="filter__select" id="sortQuality">
+                            <option value="default">All Qualities</option>
+                            <option value="premium">Premium</option>
+                            <option value="standard">Standard</option>
+                            <option value="budget">Budget</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="products" id="productGrid"></div>
+        </main>
+    </div>
+
+    <script>
+        const products = {
+            categories: [{
+                    id: "necklaces",
+                    name: "Necklaces",
+                    icon: "fa-gem",
+                    count: 0,
+                    description: "Exquisite necklaces for every occasion",
+                    banner: "./Images/Necklace.png"
+                },
+                {
+                    id: "rings",
+                    name: "Rings",
+                    icon: "fa-ring",
+                    count: 0,
+                    description: "Stunning rings to adorn your fingers",
+                    banner: "./Images/Rings.png"
+                },
+                {
+                    id: "bracelets",
+                    name: "Bracelets",
+                    icon: "fa-link",
+                    count: 0,
+                    description: "Beautiful bracelets for wrist adornment",
+                    banner: "./Images/bracelets.png"
+                },
+                {
+                    id: "earrings",
+                    name: "Earrings",
+                    icon: "fa-heart",
+                    count: 0,
+                    description: "Elegant earrings to complete your look",
+                    banner: "./Images/Earings.png"
+                }
+            ],
+            items: [{
+                    id: 1,
+                    name: "Diamond Solitaire Necklace",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "18K white gold necklace with brilliant-cut diamond",
+                    price: 1200.00,
+                    originalPrice: 1500.00,
+                    quality: "premium",
+                    badge: "bestseller"
+                },
+                {
+                    id: 2,
+                    name: "Pearl Drop Necklace",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "Elegant freshwater pearl pendant on delicate chain",
+                    price: 350.00,
+                    quality: "standard",
+                    badge: "new"
+                },
+                {
+                    id: 3,
+                    name: "Gold Heart Pendant",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "14K yellow gold heart-shaped pendant",
+                    price: 275.00,
+                    quality: "standard"
+                },
+                {
+                    id: 4,
+                    name: "Silver Tree of Life",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "Sterling silver pendant with intricate tree design",
+                    price: 85.00,
+                    quality: "budget",
+                    badge: "sale"
+                },
+                {
+                    id: 5,
+                    name: "Sapphire Halo Necklace",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "Blue sapphire surrounded by diamond accents in platinum",
+                    price: 2200.00,
+                    quality: "premium"
+                },
+                {
+                    id: 6,
+                    name: "Initial Letter Necklace",
+                    category: "necklaces",
+                    type: "necklace",
+                    description: "Personalized initial pendant in rose gold",
+                    price: 180.00,
+                    quality: "standard"
+                },
+                {
+                    id: 7,
+                    name: "Platinum Engagement Ring",
+                    category: "rings",
+                    type: "ring",
+                    description: "Classic solitaire engagement ring with 1ct diamond",
+                    price: 5000.00,
+                    quality: "premium",
+                    badge: "bestseller"
+                },
+                {
+                    id: 8,
+                    name: "Stackable Gold Bands",
+                    category: "rings",
+                    type: "ring",
+                    description: "Set of three thin 14K gold bands for stacking",
+                    price: 450.00,
+                    quality: "standard"
+                },
+                {
+                    id: 9,
+                    name: "Birthstone Cocktail Ring",
+                    category: "rings",
+                    type: "ring",
+                    description: "Statement ring featuring your birthstone",
+                    price: 220.00,
+                    quality: "standard",
+                    badge: "new"
+                },
+                {
+                    id: 10,
+                    name: "Silver Signet Ring",
+                    category: "rings",
+                    type: "ring",
+                    description: "Classic sterling silver signet ring",
+                    price: 95.00,
+                    quality: "budget"
+                },
+                {
+                    id: 11,
+                    name: "Eternity Diamond Band",
+                    category: "rings",
+                    type: "ring",
+                    description: "Full circle of brilliant-cut diamonds in platinum",
+                    price: 3800.00,
+                    quality: "premium"
+                },
+                {
+                    id: 12,
+                    name: "Art Deco Style Ring",
+                    category: "rings",
+                    type: "ring",
+                    description: "Vintage-inspired geometric design with sapphires",
+                    price: 650.00,
+                    quality: "standard"
+                },
+                {
+                    id: 13,
+                    name: "Diamond Tennis Bracelet",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Elegant line of diamonds in white gold setting",
+                    price: 3200.00,
+                    quality: "premium"
+                },
+                {
+                    id: 14,
+                    name: "Charm Bracelet",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Customizable sterling silver charm bracelet",
+                    price: 150.00,
+                    quality: "standard",
+                    badge: "new"
+                },
+                {
+                    id: 15,
+                    name: "Pearl Strand Bracelet",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Lustrous freshwater pearls on silk thread",
+                    price: 180.00,
+                    quality: "standard"
+                },
+                {
+                    id: 16,
+                    name: "Bangle Set",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Set of three gold-plated bangles",
+                    price: 75.00,
+                    quality: "budget",
+                    badge: "sale"
+                },
+                {
+                    id: 17,
+                    name: "Diamond Hinged Bangle",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Solid gold bangle with diamond accents",
+                    price: 2800.00,
+                    quality: "premium"
+                },
+                {
+                    id: 18,
+                    name: "Leather Wrap Bracelet",
+                    category: "bracelets",
+                    type: "bracelet",
+                    description: "Italian leather with gold-plated accents",
+                    price: 120.00,
+                    quality: "standard"
+                },
+                {
+                    id: 19,
+                    name: "Diamond Stud Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "Classic round brilliant diamond studs in platinum",
+                    price: 1500.00,
+                    quality: "premium",
+                    badge: "bestseller"
+                },
+                {
+                    id: 20,
+                    name: "Pearl Drop Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "Elegant freshwater pearl drops with diamond accents",
+                    price: 320.00,
+                    quality: "standard"
+                },
+                {
+                    id: 21,
+                    name: "Gold Hoop Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "14K yellow gold classic hoop earrings",
+                    price: 180.00,
+                    quality: "standard",
+                    badge: "new"
+                },
+                {
+                    id: 22,
+                    name: "Silver Stud Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "Sterling silver geometric design studs",
+                    price: 65.00,
+                    quality: "budget"
+                },
+                {
+                    id: 23,
+                    name: "Chandelier Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "Dramatic gold chandelier earrings with crystals",
+                    price: 420.00,
+                    quality: "standard"
+                },
+                {
+                    id: 24,
+                    name: "Huggie Hoop Earrings",
+                    category: "earrings",
+                    type: "earrings",
+                    description: "Small gold huggie hoops with diamond accents",
+                    price: 290.00,
+                    quality: "standard"
+                }
+            ]
+        };
+
+        const categoryList = document.getElementById('categoryList'),
+            productGrid = document.getElementById('productGrid'),
+            resultsCount = document.getElementById('resultsCount'),
+            sortPrice = document.getElementById('sortPrice'),
+            sortQuality = document.getElementById('sortQuality'),
+            categoryBanner = document.getElementById('categoryBanner'),
+            allProductsCountElement = document.getElementById('allProductsCount');
+        let currentCategory = 'all',
+            currentSort = 'default',
+            currentQuality = 'default';
+
+        function init() {
+            updateCategoryCounts();
+            renderCategories();
+            renderProducts();
+            setupEventListeners();
+        }
+
+        function updateCategoryCounts() {
+            products.categories.forEach(category => {
+                category.count = products.items.filter(item => item.category === category.id).length;
+            });
+            allProductsCountElement.textContent = products.items.length;
+        }
+
+        function renderCategories() {
+            categoryList.innerHTML = products.categories.map(category => `
+                <li class="sidebar__item" data-category="${category.id}">
+                    <div class="sidebar__icon"><i class="fas ${category.icon}"></i></div>
+                    <span class="sidebar__name">${category.name}</span>
+                    <span class="sidebar__count">${category.count}</span>
+                </li>
+            `).join('');
+        }
+
+        function renderProducts() {
+            let filteredProducts = [...products.items];
+            
+            if (currentCategory !== 'all') {
+                filteredProducts = filteredProducts.filter(product => product.category === currentCategory);
+            } else {
+                let selectedAllProducts = [];
+                const categoryOrder = ["necklaces", "rings", "bracelets", "earrings"];
+                categoryOrder.forEach(catId => {
+                    const productsInCategory = products.items.filter(product => product.category === catId);
+                    if (productsInCategory.length > 0) selectedAllProducts.push(productsInCategory[0]);
+                });
+                let remainingNeeded = 9 - selectedAllProducts.length;
+                if (remainingNeeded > 0) {
+                    const currentProductIds = new Set(selectedAllProducts.map(p => p.id));
+                    const otherProducts = products.items.filter(p => !currentProductIds.has(p.id));
+                    selectedAllProducts.push(...otherProducts.slice(0, remainingNeeded));
+                }
+                filteredProducts = selectedAllProducts;
+            }
+            
+            if (currentQuality !== 'default') {
+                filteredProducts = filteredProducts.filter(product => product.quality === currentQuality);
+            }
+            if (currentSort === 'low-high') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'high-low') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+            filteredProducts = filteredProducts.slice(0, 9);
+
+            resultsCount.textContent = `${filteredProducts.length} jewelry pieces found`;
+
+            productGrid.innerHTML = filteredProducts.length === 0 ?
+                `<div class="empty-state">No jewelry matches your filters. Try adjusting your search criteria.</div>` :
+                filteredProducts.map((product, index) => {
+                    const delay = index * 0.1;
+                    let badgeHtml = '';
+                    if (product.badge) {
+                        badgeHtml = `<span class="product__badge">${product.badge}</span>`;
+                    }
+                    const originalPriceHtml = product.originalPrice ?
+                        `<span class="product__price--original">$${product.originalPrice.toFixed(2)}</span>` : '';
+                    
+                    return `
+                        <div class="product" style="animation-delay: ${delay}s">
+                            ${badgeHtml}
+                            <div class="product__media">
+                                <img src="https://via.placeholder.com/300/1e1e1e/ffffff?text=${product.name.split(' ').join('+')}" 
+                                     alt="${product.name}" class="product__image">
+                            </div>
+                            <div class="product__details">
+                                <span class="product__category">${product.category}</span>
+                                <h3 class="product__title">${product.name}</h3>
+                                <p class="product__description">${product.description}</p>
+                                <div class="product__footer">
+                                    <div class="product__price">
+                                        ${originalPriceHtml}
+                                        $${product.price.toFixed(2)}
+                                    </div>
+                                    <button class="product__button">
+                                        <i class="fas fa-shopping-bag product__button-icon"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            
+            updateCategoryBanner();
+        }
+
+        function updateCategoryBanner() {
+            if (currentCategory === 'all') {
+                categoryBanner.innerHTML = `<img src="./Images/allProducts.png" alt="All Jewelry" class="banner__image">`;
+            } else {
+                const category = products.categories.find(cat => cat.id === currentCategory);
+                if (category) {
+                    categoryBanner.innerHTML = `<img src="${category.banner}" alt="${category.name}" class="banner__image">`;
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.sidebar__item[data-category]').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.sidebar__item[data-category]').forEach(i => 
+                        i.classList.remove('sidebar__item--active'));
+                    this.classList.add('sidebar__item--active');
+                    currentCategory = this.dataset.category;
+                    renderProducts();
+                });
+            });
+            
+            document.querySelectorAll('.sidebar__item[data-filter]').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.sidebar__item[data-filter]').forEach(i => 
+                        i.classList.remove('sidebar__item--active'));
+                    this.classList.add('sidebar__item--active');
+                    currentQuality = this.dataset.filter === 'all' ? 'default' : this.dataset.filter;
+                    renderProducts();
+                });
+            });
+            sortPrice.addEventListener('change', () => {
+                currentSort = sortPrice.value;
+                renderProducts();
+            });
+            sortQuality.addEventListener('change', () => {
+                currentQuality = sortQuality.value === 'default' ? 'default' : sortQuality.value;
+                renderProducts();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

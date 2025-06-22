@@ -1,62 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éclat Jewelry | Luxury Collection</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="./Cos&Jew.css">
-</head>
-
-<body>
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search jewelry..." id="searchInput">
+<?php
+include_once "header.php";
+?>
+    <div class="app">
+        <aside class="side_panel side_panel--expanded">
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">Shop By Category</h2>
+                <ul class="sidebar__list" id="categoryList"></ul>
             </div>
-            <div class="category-section">
-                <h2 class="section-title">Shop By Category</h2>
-                <ul class="category-list" id="categoryList"></ul>
-            </div>
-            <div class="category-section">
-                <h2 class="section-title">Product Tier</h2>
-                <ul class="category-list">
-                    <li class="category-item active" data-filter="all">
-                        <div class="category-icon"><i class="fas fa-star"></i></div>
-                        <span class="category-name">All Jewelry</span>
-                        <span class="category-count" id="allProductsCount"></span>
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">Product Tier</h2>
+                <ul class="sidebar__list">
+                    <li class="sidebar__item sidebar__item--active" data-filter="all">
+                        <div class="sidebar__icon"><i class="fas fa-star"></i></div>
+                        <span class="sidebar__text">All Jewelry</span>
+                        <span class="sidebar__count" id="allProductsCount">24</span>
                     </li>
-                    <li class="category-item" data-filter="premium">
-                        <div class="category-icon"><i class="fas fa-crown"></i></div>
-                        <span class="category-name">Premium</span>
+                    <li class="sidebar__item" data-filter="premium">
+                        <div class="sidebar__icon"><i class="fas fa-crown"></i></div>
+                        <span class="sidebar__text">Premium</span>
+                        <span class="sidebar__count">7</span>
                     </li>
-                    <li class="category-item" data-filter="standard">
-                        <div class="category-icon"><i class="fas fa-gem"></i></div>
-                        <span class="category-name">Standard</span>
+                    <li class="sidebar__item" data-filter="standard">
+                        <div class="sidebar__icon"><i class="fas fa-gem"></i></div>
+                        <span class="sidebar__text">Standard</span>
+                        <span class="sidebar__count">12</span>
                     </li>
-                    <li class="category-item" data-filter="budget">
-                        <div class="category-icon"><i class="fas fa-coins"></i></div>
-                        <span class="category-name">Budget</span>
+                    <li class="sidebar__item" data-filter="budget">
+                        <div class="sidebar__icon"><i class="fas fa-coins"></i></div>
+                        <span class="sidebar__text">Budget</span>
+                        <span class="sidebar__count">5</span>
                     </li>
                 </ul>
             </div>
         </aside>
-        <main class="main-content">
-            <div class="category-banner" id="categoryBanner">
-                <div class="banner-content">
-                    <h2>All Jewelry</h2>
-                    <p>Discover our complete collection of luxury jewelry pieces</p>
-                </div>
-                <img src="https://via.placeholder.com/150" alt="Category Banner" class="banner-image">
+
+        <main class="content">
+            <div class="banner" id="categoryBanner">
+                <img src="https://via.placeholder.com/1200x300/1e1e1e/ffffff?text=All+Jewelry+Collection"
+                    alt="All Jewelry Collection" class="banner__image">
             </div>
+
             <div class="toolbar">
-                <div class="results-count" id="resultsCount">Loading jewelry...</div>
-                <div class="sort-filter">
-                    <div class="sort-option">
+                <div class="toolbar__count" id="resultsCount">24 jewelry pieces found</div>
+                <div class="toolbar__filters">
+                    <div class="toolbar__filter">
                         <i class="fas fa-sort-amount-down"></i>
                         <select id="sortPrice">
                             <option value="default">Sort by Price</option>
@@ -64,7 +51,7 @@
                             <option value="high-low">Price: High to Low</option>
                         </select>
                     </div>
-                    <div class="sort-option">
+                    <div class="toolbar__filter">
                         <i class="fas fa-filter"></i>
                         <select id="sortQuality">
                             <option value="default">All Qualities</option>
@@ -75,53 +62,129 @@
                     </div>
                 </div>
             </div>
-            <div class="product-grid" id="productGrid"></div>
+
+            <div class="products" id="productGrid"></div>
         </main>
     </div>
 
+<script src="./script.js"></script>
     <script>
+        // Cart Class (same as before)
+        class Cart {
+            constructor() {
+                this.cart = JSON.parse(localStorage.getItem('cart')) || [];
+                this.updateCartCount();
+            }
+
+            addItem(product) {
+                const existingItem = this.cart.find(item => item.id === product.id);
+
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.cart.push({
+                        ...product,
+                        quantity: 1
+                    });
+                }
+
+                this.saveCart();
+                this.updateCartCount();
+                return existingItem ? existingItem.quantity : 1;
+            }
+
+            removeItem(id) {
+                this.cart = this.cart.filter(item => item.id !== id);
+                this.saveCart();
+                this.updateCartCount();
+            }
+
+            updateQuantity(id, quantity) {
+                const item = this.cart.find(item => item.id === id);
+                if (item) {
+                    item.quantity = quantity;
+                    this.saveCart();
+                }
+            }
+
+            getCart() {
+                return this.cart;
+            }
+
+            getTotalItems() {
+                return this.cart.reduce((total, item) => total + item.quantity, 0);
+            }
+
+            getTotalPrice() {
+                return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+
+            clearCart() {
+                this.cart = [];
+                this.saveCart();
+                this.updateCartCount();
+            }
+
+            saveCart() {
+                localStorage.setItem('cart', JSON.stringify(this.cart));
+            }
+
+            updateCartCount() {
+                const countElements = document.querySelectorAll('.cart-count');
+                const count = this.getTotalItems();
+
+                countElements.forEach(element => {
+                    element.textContent = count;
+                    element.style.display = count > 0 ? 'block' : 'none';
+                });
+            }
+
+            isInCart(id) {
+                return this.cart.some(item => item.id === id);
+            }
+        }
+
+        // Initialize cart
+        const cart = new Cart();
+
+        // Product Data
         const products = {
             categories: [{
                     id: "necklaces",
                     name: "Necklaces",
                     icon: "fa-gem",
-                    count: 0,
-                    description: "Exquisite necklaces for every occasion",
+                    count: 6,
                     banner: "./Images/Necklace.png"
                 },
                 {
                     id: "rings",
                     name: "Rings",
                     icon: "fa-ring",
-                    count: 0,
-                    description: "Stunning rings to adorn your fingers",
+                    count: 6,
                     banner: "./Images/Rings.png"
                 },
                 {
                     id: "bracelets",
                     name: "Bracelets",
                     icon: "fa-link",
-                    count: 0,
-                    description: "Beautiful bracelets for wrist adornment",
-                    banner: "./Images/bracelets.png"
+                    count: 6,
+                    banner: "./Images/Bracelets.png"
                 },
                 {
                     id: "earrings",
                     name: "Earrings",
                     icon: "fa-heart",
-                    count: 0,
-                    description: "Elegant earrings to complete your look",
-                    banner: "./Images/Earings.png"
+                    count: 6,
+                    banner: "./Images/Earrings.png"
                 }
             ],
-            items: [{
+            items: [
+                // Necklaces
+                {
                     id: 1,
                     name: "Diamond Solitaire Necklace",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "18K white gold necklace with brilliant-cut diamond",
                     price: 1200.00,
-                    originalPrice: 1500.00,
                     quality: "premium",
                     badge: "bestseller"
                 },
@@ -129,8 +192,6 @@
                     id: 2,
                     name: "Pearl Drop Necklace",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "Elegant freshwater pearl pendant on delicate chain",
                     price: 350.00,
                     quality: "standard",
                     badge: "new"
@@ -139,8 +200,6 @@
                     id: 3,
                     name: "Gold Heart Pendant",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "14K yellow gold heart-shaped pendant",
                     price: 275.00,
                     quality: "standard"
                 },
@@ -148,8 +207,6 @@
                     id: 4,
                     name: "Silver Tree of Life",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "Sterling silver pendant with intricate tree design",
                     price: 85.00,
                     quality: "budget",
                     badge: "sale"
@@ -158,8 +215,6 @@
                     id: 5,
                     name: "Sapphire Halo Necklace",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "Blue sapphire surrounded by diamond accents in platinum",
                     price: 2200.00,
                     quality: "premium"
                 },
@@ -167,18 +222,15 @@
                     id: 6,
                     name: "Initial Letter Necklace",
                     category: "necklaces",
-                    type: "necklace",
-                    description: "Personalized initial pendant in rose gold",
                     price: 180.00,
                     quality: "standard"
                 },
 
+                // Rings
                 {
                     id: 7,
                     name: "Platinum Engagement Ring",
                     category: "rings",
-                    type: "ring",
-                    description: "Classic solitaire engagement ring with 1ct diamond",
                     price: 5000.00,
                     quality: "premium",
                     badge: "bestseller"
@@ -187,8 +239,6 @@
                     id: 8,
                     name: "Stackable Gold Bands",
                     category: "rings",
-                    type: "ring",
-                    description: "Set of three thin 14K gold bands for stacking",
                     price: 450.00,
                     quality: "standard"
                 },
@@ -196,8 +246,6 @@
                     id: 9,
                     name: "Birthstone Cocktail Ring",
                     category: "rings",
-                    type: "ring",
-                    description: "Statement ring featuring your birthstone",
                     price: 220.00,
                     quality: "standard",
                     badge: "new"
@@ -206,8 +254,6 @@
                     id: 10,
                     name: "Silver Signet Ring",
                     category: "rings",
-                    type: "ring",
-                    description: "Classic sterling silver signet ring",
                     price: 95.00,
                     quality: "budget"
                 },
@@ -215,8 +261,6 @@
                     id: 11,
                     name: "Eternity Diamond Band",
                     category: "rings",
-                    type: "ring",
-                    description: "Full circle of brilliant-cut diamonds in platinum",
                     price: 3800.00,
                     quality: "premium"
                 },
@@ -224,18 +268,15 @@
                     id: 12,
                     name: "Art Deco Style Ring",
                     category: "rings",
-                    type: "ring",
-                    description: "Vintage-inspired geometric design with sapphires",
                     price: 650.00,
                     quality: "standard"
                 },
 
+                // Bracelets
                 {
                     id: 13,
                     name: "Diamond Tennis Bracelet",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Elegant line of diamonds in white gold setting",
                     price: 3200.00,
                     quality: "premium"
                 },
@@ -243,8 +284,6 @@
                     id: 14,
                     name: "Charm Bracelet",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Customizable sterling silver charm bracelet",
                     price: 150.00,
                     quality: "standard",
                     badge: "new"
@@ -253,8 +292,6 @@
                     id: 15,
                     name: "Pearl Strand Bracelet",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Lustrous freshwater pearls on silk thread",
                     price: 180.00,
                     quality: "standard"
                 },
@@ -262,8 +299,6 @@
                     id: 16,
                     name: "Bangle Set",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Set of three gold-plated bangles",
                     price: 75.00,
                     quality: "budget",
                     badge: "sale"
@@ -272,8 +307,6 @@
                     id: 17,
                     name: "Diamond Hinged Bangle",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Solid gold bangle with diamond accents",
                     price: 2800.00,
                     quality: "premium"
                 },
@@ -281,18 +314,15 @@
                     id: 18,
                     name: "Leather Wrap Bracelet",
                     category: "bracelets",
-                    type: "bracelet",
-                    description: "Italian leather with gold-plated accents",
                     price: 120.00,
                     quality: "standard"
                 },
 
+                // Earrings
                 {
                     id: 19,
                     name: "Diamond Stud Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "Classic round brilliant diamond studs in platinum",
                     price: 1500.00,
                     quality: "premium",
                     badge: "bestseller"
@@ -301,8 +331,6 @@
                     id: 20,
                     name: "Pearl Drop Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "Elegant freshwater pearl drops with diamond accents",
                     price: 320.00,
                     quality: "standard"
                 },
@@ -310,8 +338,6 @@
                     id: 21,
                     name: "Gold Hoop Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "14K yellow gold classic hoop earrings",
                     price: 180.00,
                     quality: "standard",
                     badge: "new"
@@ -320,8 +346,6 @@
                     id: 22,
                     name: "Silver Stud Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "Sterling silver geometric design studs",
                     price: 65.00,
                     quality: "budget"
                 },
@@ -329,8 +353,6 @@
                     id: 23,
                     name: "Chandelier Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "Dramatic gold chandelier earrings with crystals",
                     price: 420.00,
                     quality: "standard"
                 },
@@ -338,158 +360,229 @@
                     id: 24,
                     name: "Huggie Hoop Earrings",
                     category: "earrings",
-                    type: "earrings",
-                    description: "Small gold huggie hoops with diamond accents",
                     price: 290.00,
                     quality: "standard"
                 }
             ]
         };
 
+        // DOM Elements
         const categoryList = document.getElementById('categoryList'),
             productGrid = document.getElementById('productGrid'),
             resultsCount = document.getElementById('resultsCount'),
             sortPrice = document.getElementById('sortPrice'),
             sortQuality = document.getElementById('sortQuality'),
-            searchInput = document.getElementById('searchInput'),
             categoryBanner = document.getElementById('categoryBanner'),
             allProductsCountElement = document.getElementById('allProductsCount');
+
         let currentCategory = 'all',
             currentSort = 'default',
-            currentQuality = 'default',
-            currentSearch = '';
+            currentQuality = 'default';
 
+        // Initialize the page
         function init() {
-            updateCategoryCounts();
             renderCategories();
             renderProducts();
-            setupEventListeners()
+            setupEventListeners();
         }
 
-        function updateCategoryCounts() {
-            products.categories.forEach(category => {
-                category.count = products.items.filter(item => item.category === category.id).length
-            });
-            allProductsCountElement.textContent = products.items.length
-        }
-
+        // Render category list
         function renderCategories() {
-            categoryList.innerHTML = products.categories.map(category => `<li class="category-item" data-category="${category.id}"><div class="category-icon"><i class="fas ${category.icon}"></i></div><span class="category-name">${category.name}</span><span class="category-count">${category.count}</span></li>`).join('')
+            categoryList.innerHTML = products.categories.map(category => `
+                <li class="sidebar__item" data-category="${category.id}">
+                    <div class="sidebar__icon"><i class="fas ${category.icon}"></i></div>
+                    <span class="sidebar__text">${category.name}</span>
+                    <span class="sidebar__count">${category.count}</span>
+                </li>
+            `).join('');
         }
 
+        // Render products
         function renderProducts() {
             let filteredProducts = [...products.items];
+
+            // Filter by category
             if (currentCategory !== 'all') {
                 filteredProducts = filteredProducts.filter(product => product.category === currentCategory);
             } else {
+                // For "All" view, show a curated selection
                 let selectedAllProducts = [];
                 const categoryOrder = ["necklaces", "rings", "bracelets", "earrings"];
+
                 categoryOrder.forEach(catId => {
                     const productsInCategory = products.items.filter(product => product.category === catId);
-                    if (productsInCategory.length > 0) selectedAllProducts.push(productsInCategory[0]);
+                    if (productsInCategory.length > 0) {
+                        selectedAllProducts.push(productsInCategory[0]);
+                    }
                 });
-                let remainingNeeded = 9 - selectedAllProducts.length;
+
+                let remainingNeeded = 8 - selectedAllProducts.length;
                 if (remainingNeeded > 0) {
                     const currentProductIds = new Set(selectedAllProducts.map(p => p.id));
                     const otherProducts = products.items.filter(p => !currentProductIds.has(p.id));
                     selectedAllProducts.push(...otherProducts.slice(0, remainingNeeded));
                 }
+
                 filteredProducts = selectedAllProducts;
             }
-            if (currentQuality !== 'default') filteredProducts = filteredProducts.filter(product => product.quality === currentQuality);
-            if (currentSearch) {
-                const searchTerm = currentSearch.toLowerCase();
-                filteredProducts = filteredProducts.filter(product =>
-                    product.name.toLowerCase().includes(searchTerm) || product.description.toLowerCase().includes(searchTerm)
-                )
+
+            // Filter by quality
+            if (currentQuality !== 'default') {
+                filteredProducts = filteredProducts.filter(product => product.quality === currentQuality);
             }
-            if (currentSort === 'low-high') filteredProducts.sort((a, b) => a.price - b.price);
-            else if (currentSort === 'high-low') filteredProducts.sort((a, b) => b.price - a.price);
-            filteredProducts = filteredProducts.slice(0, 9);
+
+            // Sort products
+            if (currentSort === 'low-high') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'high-low') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+
+            // Update results count
             resultsCount.textContent = `${filteredProducts.length} jewelry pieces found`;
+
+            // Render products
             productGrid.innerHTML = filteredProducts.length === 0 ?
-                `<div class="no-results">No jewelry matches your filters. Try adjusting your search criteria.</div>` :
+                `<div class="products__empty">No jewelry matches your filters. Try adjusting your search criteria.</div>` :
                 filteredProducts.map((product, index) => {
                     const delay = index * 0.1;
                     let badgeHtml = '';
+
                     if (product.badge) {
-                        badgeHtml = `<span class="product-badge">${product.badge}</span>`;
+                        badgeHtml = `<span class="product__badge product__badge--${product.badge}">${product.badge}</span>`;
                     }
-                    const originalPriceHtml = product.originalPrice ?
-                        `<span class="original">$${product.originalPrice.toFixed(2)}</span>` : '';
+
+                    const isInCart = cart.isInCart(product.id);
+                    const buttonClass = isInCart ? 'product__button added' : 'product__button';
+                    const buttonText = isInCart ? 'Added to Cart' : 'Add to Cart';
+
                     return `
-            <div class="product-card" style="animation-delay: ${delay}s">
-              ${badgeHtml}
-              <div class="product-media">
-                <img src="https://via.placeholder.com/300/1e1e1e/ffffff?text=${product.name.split(' ').join('+')}" alt="${product.name}" class="product-image">
-              </div>
-              <div class="product-details">
-                <span class="product-category">${product.category}</span>
-                <h3 class="product-title">${product.name}</h3>
-                <p class="product-description">${product.description}</p>
-                <div class="product-footer">
-                  <div class="product-price">
-                    ${originalPriceHtml}
-                    $${product.price.toFixed(2)}
-                  </div>
-                  <button class="add-to-cart">
-                    <i class="fas fa-shopping-bag"></i> Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
+                        <div class="product" style="animation-delay: ${delay}s">
+                            ${badgeHtml}
+                            <div class="product__media">
+                                <img src="https://via.placeholder.com/300/1e1e1e/ffffff?text=${product.name.split(' ').join('+')}" 
+                                     alt="${product.name}" class="product__image">
+                            </div>
+                            <div class="product__details">
+                                <span class="product__category">${product.category}</span>
+                                <h3 class="product__title">${product.name}</h3>
+                                <p class="product__description">${product.description || 'Beautiful jewelry piece for any occasion'}</p>
+                                <div class="product__footer">
+                                    <div class="product__price">
+                                        $${product.price.toFixed(2)}
+                                    </div>
+                                    <button class="${buttonClass}" onclick="addToCart(${product.id})">
+                                        <i class="fas ${isInCart ? 'fa-check' : 'fa-shopping-bag'}"></i> ${buttonText}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }).join('');
+
             updateCategoryBanner();
         }
 
-       function updateCategoryBanner() {
-            if (currentFilters.category === 'all') {
-                D.categoryBanner.innerHTML = `
-            <img src="./all-products-banner.png" alt="All Products" class="banner-image">
-        `;
+        // Update category banner
+        function updateCategoryBanner() {
+            if (currentCategory === 'all') {
+                categoryBanner.innerHTML = `
+                    <img src="https://via.placeholder.com/1200x300/1e1e1e/ffffff?text=All+Jewelry+Collection" 
+                         alt="All Jewelry" class="banner__image">
+                `;
             } else {
-                const category = productsData.categories.find(cat => cat.id === currentFilters.category);
+                const category = products.categories.find(cat => cat.id === currentCategory);
                 if (category) {
-                    D.categoryBanner.innerHTML = `
-                <img src="${category.banner}" alt="${category.name}" class="banner-image">
-            `;
+                    categoryBanner.innerHTML = `
+                        <img src="${category.banner}" alt="${category.name}" class="banner__image">
+                    `;
                 }
             }
         }
 
+        // Set up event listeners
         function setupEventListeners() {
-            document.querySelectorAll('.category-item[data-category]').forEach(item => {
+            // Category filter
+            document.querySelectorAll('.sidebar__item[data-category]').forEach(item => {
                 item.addEventListener('click', function() {
-                    document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
+                    document.querySelectorAll('.sidebar__item[data-category]').forEach(i =>
+                        i.classList.remove('sidebar__item--active'));
+                    this.classList.add('sidebar__item--active');
                     currentCategory = this.dataset.category;
                     renderProducts();
                 });
             });
-            document.querySelectorAll('.category-item[data-filter]').forEach(item => {
+
+            // Quality filter
+            document.querySelectorAll('.sidebar__item[data-filter]').forEach(item => {
                 item.addEventListener('click', function() {
-                    document.querySelectorAll('.category-item[data-filter]').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
+                    document.querySelectorAll('.sidebar__item[data-filter]').forEach(i =>
+                        i.classList.remove('sidebar__item--active'));
+                    this.classList.add('sidebar__item--active');
                     currentQuality = this.dataset.filter === 'all' ? 'default' : this.dataset.filter;
                     renderProducts();
                 });
             });
+
+            // Sort by price
             sortPrice.addEventListener('change', () => {
                 currentSort = sortPrice.value;
-                renderProducts()
+                renderProducts();
             });
+
+            // Filter by quality
             sortQuality.addEventListener('change', () => {
                 currentQuality = sortQuality.value === 'default' ? 'default' : sortQuality.value;
-                renderProducts()
-            });
-            searchInput.addEventListener('input', () => {
-                currentSearch = searchInput.value;
-                renderProducts()
+                renderProducts();
             });
         }
+
+        // Add to cart function (global)
+        function addToCart(productId) {
+            const product = products.items.find(p => p.id === productId);
+            if (product) {
+                const quantity = cart.addItem(product);
+
+                // Update the button appearance
+                const buttons = document.querySelectorAll(`button[onclick="addToCart(${productId})"]`);
+                buttons.forEach(button => {
+                    button.classList.add('added');
+                    button.innerHTML = `<i class="fas fa-check"></i> Added to Cart`;
+                });
+
+                // Show a quick notification
+                showCartNotification(product.name);
+            }
+        }
+
+        // Show add to cart notification
+        function showCartNotification(productName) {
+            const notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${productName} added to cart</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize the page
         document.addEventListener('DOMContentLoaded', init);
     </script>
+
+   
 </body>
 
 </html>

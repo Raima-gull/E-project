@@ -1,59 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éclat Cosmetics | Luxury Beauty</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="./Cos&Jew.css">
-
-</head>
-
-<body>
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+<?php include_once "header.php"?>
+    <div class="app">
+        <aside class="side_panel" id="sidePanel">
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">
+                    Shop By Category
+                    <i class="fas fa-chevron-down sidebar__toggle" id="categoryToggle"></i>
+                </h2>
+                <ul class="sidebar__list" id="categoryList"></ul>
             </div>
-            <div class="category-section">
-                <h2 class="section-title">Shop By Category</h2>
-                <ul class="category-list" id="categoryList"></ul>
-            </div>
-            <div class="category-section">
-                <h2 class="section-title">Product Tier</h2>
-                <ul class="category-list">
-                    <li class="category-item active" data-filter="all">
-                        <div class="category-icon"><i class="fas fa-star"></i></div>
-                        <span class="category-name">All Products</span>
-                        <span class="category-count" id="allProductsCount"></span>
+            <div class="sidebar__section">
+                <h2 class="sidebar__title">
+                    Product Tier
+                    <i class="fas fa-chevron-down sidebar__toggle" id="tierToggle"></i>
+                </h2>
+                <ul class="sidebar__list">
+                    <li class="sidebar__item sidebar__item--active" data-filter="all">
+                        <div class="sidebar__icon"><i class="fas fa-star"></i></div>
+                        <span class="sidebar__text">All Products</span>
+                        <span class="sidebar__count" id="allProductsCount"></span>
                     </li>
-                    <li class="category-item" data-filter="premium">
-                        <div class="category-icon"><i class="fas fa-crown"></i></div>
-                        <span class="category-name">Premium</span>
+                    <li class="sidebar__item" data-filter="premium">
+                        <div class="sidebar__icon"><i class="fas fa-crown"></i></div>
+                        <span class="sidebar__text">Premium</span>
                     </li>
-                    <li class="category-item" data-filter="standard">
-                        <div class="category-icon"><i class="fas fa-gem"></i></div>
-                        <span class="category-name">Standard</span>
+                    <li class="sidebar__item" data-filter="standard">
+                        <div class="sidebar__icon"><i class="fas fa-gem"></i></div>
+                        <span class="sidebar__text">Standard</span>
                     </li>
-                    <li class="category-item" data-filter="budget">
-                        <div class="category-icon"><i class="fas fa-coins"></i></div>
-                        <span class="category-name">Budget</span>
+                    <li class="sidebar__item" data-filter="budget">
+                        <div class="sidebar__icon"><i class="fas fa-coins"></i></div>
+                        <span class="sidebar__text">Budget</span>
                     </li>
                 </ul>
             </div>
         </aside>
-        <main class="main-content">
-            <div class="category-banner" id="categoryBanner">
-
+        <main class="content">
+            <div class="banner" id="categoryBanner">
+                <img src="./Images/allProducts.png" alt="All Products" class="banner__image">
             </div>
             <div class="toolbar">
-                <div class="results-count" id="resultsCount">Loading products...</div>
-                <div class="sort-filter">
-                    <div class="sort-option">
+                <div class="toolbar__count" id="resultsCount">Loading products...</div>
+                <div class="toolbar__filters">
+                    <div class="toolbar__filter">
                         <i class="fas fa-sort-amount-down"></i>
                         <select id="sortPrice">
                             <option value="default">Sort by Price</option>
@@ -61,7 +49,7 @@
                             <option value="high-low">Price: High to Low</option>
                         </select>
                     </div>
-                    <div class="sort-option">
+                    <div class="toolbar__filter">
                         <i class="fas fa-filter"></i>
                         <select id="sortQuality">
                             <option value="default">All Qualities</option>
@@ -72,11 +60,87 @@
                     </div>
                 </div>
             </div>
-            <div class="product-grid" id="productGrid"></div>
+            <div class="products" id="productGrid"></div>
         </main>
     </div>
-
+  <script src="./javas.js"></script>
     <script>
+        class Cart {
+            constructor() {
+                this.cart = JSON.parse(localStorage.getItem('cart')) || [];
+                this.updateCartCount();
+            }
+
+            addItem(product) {
+                const existingItem = this.cart.find(item => item.id === product.id);
+
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.cart.push({
+                        ...product,
+                        quantity: 1
+                    });
+                }
+
+                this.saveCart();
+                this.updateCartCount();
+                return existingItem ? existingItem.quantity : 1;
+            }
+
+            removeItem(id) {
+                this.cart = this.cart.filter(item => item.id !== id);
+                this.saveCart();
+                this.updateCartCount();
+            }
+
+            updateQuantity(id, quantity) {
+                const item = this.cart.find(item => item.id === id);
+                if (item) {
+                    item.quantity = quantity;
+                    this.saveCart();
+                }
+            }
+
+            getCart() {
+                return this.cart;
+            }
+
+            getTotalItems() {
+                return this.cart.reduce((total, item) => total + item.quantity, 0);
+            }
+
+            getTotalPrice() {
+                return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+
+            clearCart() {
+                this.cart = [];
+                this.saveCart();
+                this.updateCartCount();
+            }
+
+            saveCart() {
+                localStorage.setItem('cart', JSON.stringify(this.cart));
+            }
+
+            updateCartCount() {
+                const countElements = document.querySelectorAll('.cart-count');
+                const count = this.getTotalItems();
+
+                countElements.forEach(element => {
+                    element.textContent = count;
+                    element.style.display = count > 0 ? 'block' : 'none';
+                });
+            }
+
+            isInCart(id) {
+                return this.cart.some(item => item.id === id);
+            }
+        }
+
+        const cart = new Cart();
+
         const productsData = {
             categories: [{
                     id: "lips",
@@ -541,21 +605,24 @@
                 }
             ]
         };
+
         const D = {
             categoryList: document.getElementById('categoryList'),
             productGrid: document.getElementById('productGrid'),
             resultsCount: document.getElementById('resultsCount'),
             sortPrice: document.getElementById('sortPrice'),
             sortQuality: document.getElementById('sortQuality'),
-            searchInput: document.getElementById('searchInput'),
             categoryBanner: document.getElementById('categoryBanner'),
-            allProductsCountElement: document.getElementById('allProductsCount')
+            allProductsCountElement: document.getElementById('allProductsCount'),
+            sidePanel: document.getElementById('sidePanel'),
+            categoryToggle: document.getElementById('categoryToggle'),
+            tierToggle: document.getElementById('tierToggle')
         };
+
         let currentFilters = {
             category: 'all',
             sort: 'default',
             quality: 'default',
-            search: ''
         };
 
         function updateCategoryCounts() {
@@ -565,27 +632,19 @@
             D.allProductsCountElement.textContent = productsData.items.length;
         }
 
-
         function renderCategories() {
             D.categoryList.innerHTML = productsData.categories.map(category => `
-                <li class="category-item" data-category="${category.id}">
-                    <div class="category-icon"><i class="fas ${category.icon}"></i></div>
-                    <span class="category-name">${category.name}</span>
-                    <span class="category-count">${category.count}</span>
+                <li class="sidebar__item" data-category="${category.id}">
+                    <div class="sidebar__icon"><i class="fas ${category.icon}"></i></div>
+                    <span class="sidebar__text">${category.name}</span>
+                    <span class="sidebar__count">${category.count}</span>
                 </li>
             `).join('');
         }
 
-
         function renderProducts() {
             let filteredProducts = [...productsData.items];
-            const {
-                category,
-                quality,
-                search,
-                sort
-            } = currentFilters;
-
+            const { category, quality, sort } = currentFilters;
 
             if (category !== 'all') {
                 filteredProducts = filteredProducts.filter(product => product.category === category);
@@ -593,8 +652,10 @@
                 let selectedAllProducts = [];
                 const categoryOrder = ["lips", "face", "eyes", "palettes", "brushes"];
                 categoryOrder.forEach(catId => {
-                    const productsInCategory = productsData.items.find(product => product.category === catId);
-                    if (productsInCategory) selectedAllProducts.push(productsInCategory);
+                    const productsInCategory = productsData.items.filter(product => product.category === catId);
+                    if (productsInCategory.length > 0) {
+                        selectedAllProducts.push(...productsInCategory.slice(0, 2));
+                    }
                 });
 
                 let remainingNeeded = 9 - selectedAllProducts.length;
@@ -605,17 +666,9 @@
                 }
                 filteredProducts = selectedAllProducts;
             }
+
             if (quality !== 'default') {
                 filteredProducts = filteredProducts.filter(product => product.quality === quality);
-            }
-
-
-            if (search) {
-                const searchTerm = search.toLowerCase();
-                filteredProducts = filteredProducts.filter(product =>
-                    product.name.toLowerCase().includes(searchTerm) ||
-                    product.description.toLowerCase().includes(searchTerm)
-                );
             }
 
             if (sort === 'low-high') {
@@ -623,85 +676,180 @@
             } else if (sort === 'high-low') {
                 filteredProducts.sort((a, b) => b.price - a.price);
             }
-            filteredProducts = filteredProducts.slice(0, 9);
 
             D.resultsCount.textContent = `${filteredProducts.length} products found`;
-            D.productGrid.innerHTML = filteredProducts.length === 0 ?
-                `<div class="no-results">No products match your filters. Try adjusting your search criteria.</div>` :
-                filteredProducts.map((product, index) => {
+            
+            if (filteredProducts.length === 0) {
+                D.productGrid.innerHTML = `<div class="products__empty">No products match your filters. Try adjusting your search criteria.</div>`;
+            } else {
+                D.productGrid.innerHTML = filteredProducts.map((product, index) => {
                     const delay = index * 0.1;
-                    const badgeHtml = product.badge ? `<span class="product-badge">${product.badge}</span>` : '';
+                    const badgeHtml = product.badge ? `<span class="product__badge">${product.badge}</span>` : '';
                     const originalPriceHtml = product.originalPrice ? `<span class="original">$${product.originalPrice.toFixed(2)}</span>` : '';
+                    
+                    const isInCart = cart.isInCart(product.id);
+                    const buttonClass = isInCart ? 'product__button added' : 'product__button';
+                    const buttonText = isInCart ? 'Added to Cart' : 'Add to Cart';
 
                     return `
-                        <div class="product-card" style="animation-delay: ${delay}s">
+                        <div class="product" style="animation-delay: ${delay}s">
                             ${badgeHtml}
-                            <div class="product-media">
-                                <img src="https://via.placeholder.com/300/1e1e1e/ffffff?text=${product.name.split(' ').join('+')}" alt="${product.name}" class="product-image">
+                            <div class="product__media">
+                                <img src="https://via.placeholder.com/300/1e1e1e/ffffff?text=${product.name.split(' ').join('+')}" alt="${product.name}" class="product__image">
                             </div>
-                            <div class="product-details">
-                                <span class="product-category">${product.category}</span>
-                                <h3 class="product-title">${product.name}</h3>
-                                <p class="product-description">${product.description}</p>
-                                <div class="product-footer">
-                                    <div class="product-price">
+                            <div class="product__details">
+                                <span class="product__category">${product.category}</span>
+                                <h3 class="product__title">${product.name}</h3>
+                                <p class="product__description">${product.description}</p>
+                                <div class="product__footer">
+                                    <div class="product__price">
                                         ${originalPriceHtml}
                                         $${product.price.toFixed(2)}
                                     </div>
-                                    <button class="add-to-cart">
-                                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                                    <button class="${buttonClass}" onclick="addToCart(${product.id})">
+                                        <i class="fas ${isInCart ? 'fa-check' : 'fa-shopping-bag'}"></i> ${buttonText}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     `;
                 }).join('');
+            }
 
             updateCategoryBanner();
         }
+
         function updateCategoryBanner() {
             if (currentFilters.category === 'all') {
                 D.categoryBanner.innerHTML = `
-            <img src="./Images/allProducts.png" alt="All Products" class="banner-image">
-        `;
+                    <img src="./Images/allProducts.png" alt="All Products" class="banner__image">
+                `;
             } else {
                 const category = productsData.categories.find(cat => cat.id === currentFilters.category);
                 if (category) {
                     D.categoryBanner.innerHTML = `
-                <img src="${category.banner}" alt="${category.name}" class="banner-image">
-            `;
+                        <img src="${category.banner}" alt="${category.name}" class="banner__image">
+                    `;
                 }
             }
         }
+
+        function addToCart(productId) {
+            const product = productsData.items.find(p => p.id === productId);
+            if (product) {
+                const quantity = cart.addItem(product);
+
+                const buttons = document.querySelectorAll(`button[onclick="addToCart(${productId})"]`);
+                buttons.forEach(button => {
+                    button.classList.add('added');
+                    button.innerHTML = `<i class="fas fa-check"></i> Added to Cart`;
+                });
+                showCartNotification(product.name);
+            }
+        }
+
+        function showCartNotification(productName) {
+            const notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${productName} added to cart</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
         function setupEventListeners() {
+            // Category filter
             D.categoryList.addEventListener('click', (event) => {
-                const clickedItem = event.target.closest('.category-item[data-category]');
+                const clickedItem = event.target.closest('.sidebar__item[data-category]');
                 if (clickedItem) {
-                    document.querySelectorAll('.category-item[data-category]').forEach(i => i.classList.remove('active'));
-                    clickedItem.classList.add('active');
+                    document.querySelectorAll('.sidebar__item[data-category]').forEach(i => i.classList.remove('sidebar__item--active'));
+                    document.querySelectorAll('.sidebar__item[data-filter]').forEach(i => i.classList.remove('sidebar__item--active'));
+                    clickedItem.classList.add('sidebar__item--active');
                     currentFilters.category = clickedItem.dataset.category;
+                    currentFilters.quality = 'default';
+                    document.getElementById('sortQuality').value = 'default';
                     renderProducts();
                 }
             });
-            document.querySelectorAll('.category-item[data-filter]').forEach(item => {
+
+            // Quality filter
+            document.querySelectorAll('.sidebar__item[data-filter]').forEach(item => {
                 item.addEventListener('click', function() {
-                    document.querySelectorAll('.category-item[data-filter]').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
+                    document.querySelectorAll('.sidebar__item[data-filter]').forEach(i => i.classList.remove('sidebar__item--active'));
+                    document.querySelectorAll('.sidebar__item[data-category]').forEach(i => i.classList.remove('sidebar__item--active'));
+                    this.classList.add('sidebar__item--active');
                     currentFilters.quality = this.dataset.filter === 'all' ? 'default' : this.dataset.filter;
+                    currentFilters.category = 'all';
                     renderProducts();
                 });
             });
+
+            // Sort by price
             D.sortPrice.addEventListener('change', () => {
                 currentFilters.sort = D.sortPrice.value;
                 renderProducts();
             });
+
+            // Sort by quality
             D.sortQuality.addEventListener('change', () => {
                 currentFilters.quality = D.sortQuality.value === 'default' ? 'default' : D.sortQuality.value;
                 renderProducts();
             });
-            D.searchInput.addEventListener('input', () => {
-                currentFilters.search = D.searchInput.value.trim();
-                renderProducts();
+
+            // Mobile sidebar toggle
+            [D.categoryToggle, D.tierToggle].forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const section = this.closest('.sidebar__section');
+                    const list = section.querySelector('.sidebar__list');
+                    const isExpanded = list.style.display !== 'none';
+                    
+                    if (isExpanded) {
+                        list.style.display = 'none';
+                        this.classList.remove('fa-chevron-up');
+                        this.classList.add('fa-chevron-down');
+                    } else {
+                        list.style.display = 'flex';
+                        this.classList.remove('fa-chevron-down');
+                        this.classList.add('fa-chevron-up');
+                    }
+                });
+            });
+
+            // Mobile menu toggle
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    const sections = document.querySelectorAll('.sidebar__section');
+                    sections.forEach(section => {
+                        const list = section.querySelector('.sidebar__list');
+                        list.style.display = 'none';
+                        const toggle = section.querySelector('.sidebar__toggle');
+                        toggle.classList.remove('fa-chevron-up');
+                        toggle.classList.add('fa-chevron-down');
+                    });
+                } else {
+                    const lists = document.querySelectorAll('.sidebar__list');
+                    lists.forEach(list => {
+                        list.style.display = 'flex';
+                    });
+                    const toggles = document.querySelectorAll('.sidebar__toggle');
+                    toggles.forEach(toggle => {
+                        toggle.classList.remove('fa-chevron-down');
+                        toggle.classList.add('fa-chevron-up');
+                    });
+                }
             });
         }
 
@@ -710,10 +858,19 @@
             renderCategories();
             renderProducts();
             setupEventListeners();
+            if (window.innerWidth <= 768) {
+                const sections = document.querySelectorAll('.sidebar__section');
+                sections.forEach(section => {
+                    const list = section.querySelector('.sidebar__list');
+                    list.style.display = 'none';
+                    const toggle = section.querySelector('.sidebar__toggle');
+                    toggle.classList.remove('fa-chevron-up');
+                    toggle.classList.add('fa-chevron-down');
+                });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-
 </html>
